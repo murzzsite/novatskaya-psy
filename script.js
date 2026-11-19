@@ -73,6 +73,12 @@
     } catch (err) {
       console.error(err);
       btn.textContent = 'Ошибка, попробуйте ещё раз';
+      if (!form.querySelector('.form__fallback')) {
+        const note = document.createElement('p');
+        note.className = 'form__agree form__fallback';
+        note.innerHTML = 'Не получилось отправить? Напишите в Telegram: <a href="https://t.me/natasha2222" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">@natasha2222</a>';
+        form.appendChild(note);
+      }
     } finally {
       setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
     }
