@@ -61,25 +61,31 @@
     btn.disabled = true;
     btn.textContent = 'Отправляем...';
 
+    const tgText = 'Заявка с сайта. Имя: ' + payload.name + '. Контакт: ' + (payload.phone || payload.contact) + (payload.comment ? '. Запрос: ' + payload.comment : '');
+    const tgLink = 'https://t.me/natasha2222?text=' + encodeURIComponent(tgText);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
       const resp = await fetch(LEAD_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        signal: ctrl.signal,
       });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       btn.textContent = 'Заявка отправлена ✓';
+      form.querySelector('.form__fallback')?.remove();
       form.reset();
     } catch (err) {
       console.error(err);
-      btn.textContent = 'Ошибка, попробуйте ещё раз';
-      if (!form.querySelector('.form__fallback')) {
-        const note = document.createElement('p');
-        note.className = 'form__agree form__fallback';
-        note.innerHTML = 'Не получилось отправить? Напишите в Telegram: <a href="https://t.me/natasha2222" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">@natasha2222</a>';
-        form.appendChild(note);
-      }
+      btn.textContent = 'Заявка не ушла автоматически';
+      form.querySelector('.form__fallback')?.remove();
+      const note = document.createElement('p');
+      note.className = 'form__agree form__fallback';
+      note.innerHTML = 'Не получилось отправить заявку напрямую. Нажмите, чтобы отправить её в Telegram одним касанием: <a href="' + tgLink + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;font-weight:600">отправить заявку в Telegram</a>. Текст уже готов, останется нажать «Отправить».';
+      form.appendChild(note);
     } finally {
+      clearTimeout(timer);
       setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
     }
   });
