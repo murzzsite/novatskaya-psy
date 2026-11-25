@@ -58,6 +58,12 @@
       return;
     }
 
+    if (!form.querySelector('[name="consent"]')?.checked) {
+      alert('Поставьте галочку согласия на обработку персональных данных');
+      return;
+    }
+    delete payload.consent;
+
     btn.disabled = true;
     btn.textContent = 'Отправляем...';
 
